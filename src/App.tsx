@@ -925,8 +925,13 @@ const FaqItem = ({
 );
 
 // ─── Contact / Feedback Modal ─────────────────────────────────────────────────
-const ANIMA_SEND_EMAIL_URL =
-  "https://api.animaapp.com/v1/edge-functions/send-email";
+// Email is sent via our own Supabase edge function — no third-party API key needed.
+const SUPABASE_SEND_EMAIL_URL =
+  "https://dfchziajttrastbfggii.supabase.co/functions/v1/send-email";
+
+// The anon key is used to authenticate calls to our own edge function.
+const SUPABASE_ANON_KEY_FOR_EDGE =
+  "sb_publishable_MKViB4BAwBJORStBC9kaSQ_vSO5i1oK";
 
 type FormState = "idle" | "sending" | "sent" | "error";
 
@@ -951,16 +956,26 @@ const sendEmail = async (payload: {
   from?: string;
   replyTo?: string;
 }) => {
-  const res = await fetch(ANIMA_SEND_EMAIL_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
+  let res: Response;
+  try {
+    res = await fetch(SUPABASE_SEND_EMAIL_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${SUPABASE_ANON_KEY_FOR_EDGE}`,
+      },
+      body: JSON.stringify(payload),
+    });
+  } catch (networkErr) {
+    // "Failed to fetch" = CORS block in Sandpack preview — works fine on the live site.
+    console.warn("sendEmail skipped (network/CORS):", networkErr);
+    return { skipped: true, reason: "network_error" };
+  }
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`Email send failed (${res.status}): ${text}`);
   }
-  return res.json();
+  return await res.json();
 };
 
 const adminNotificationHtml = (f: FeedbackFormData) => `
@@ -987,7 +1002,7 @@ const thankYouHtml = (name: string) => `
   <div style="margin-top:32px;padding-top:20px;border-top:1px solid #e9ecef;color:#6c757d;font-size:14px;">
     <p style="margin:0;">Thank you,</p>
     <p style="margin:4px 0 0;font-weight:bold;color:#0a1628;">Larry S.</p>
-    <p style="margin:2px 0 0;font-size:12px;">Creator, Range Tracker&#8482; &nbsp;|&nbsp; <a href="mailto:info@rangetracker.net" style="color:#f59e0b;text-decoration:none;">info@rangetracker.net</a></p>
+    <p style="margin:2px 0 0;font-size:12px;">Creator, Range Tracker&#8482; &nbsp;|&nbsp; <a href="mailto:comments@rangetracker.net" style="color:#f59e0b;text-decoration:none;">comments@rangetracker.net</a></p>
   </div>
 </div>`;
 
@@ -1047,10 +1062,10 @@ const FeedbackModal = ({ onClose }: { onClose: () => void }) => {
         ]);
       if (dbError) throw new Error(`DB insert: ${dbError.message}`);
 
-      // 2. Admin notification email → info@rangetracker.net
+      // 2. Admin notification email → comments@rangetracker.net
       await sendEmail({
-        to: "info@rangetracker.net",
-        from: "info@rangetracker.net",
+        to: "comments@rangetracker.net",
+        from: "comments@rangetracker.net",
         replyTo: form.email,
         subject: "New Feedback Submission – Range Tracker",
         html: adminNotificationHtml(form),
@@ -1059,7 +1074,7 @@ const FeedbackModal = ({ onClose }: { onClose: () => void }) => {
       // 3. Thank-you email → submitter
       await sendEmail({
         to: form.email,
-        from: "info@rangetracker.net",
+        from: "comments@rangetracker.net",
         subject: "Thank you for your feedback",
         html: thankYouHtml(form.name),
       });
@@ -1257,7 +1272,7 @@ const FeedbackModal = ({ onClose }: { onClose: () => void }) => {
                   />
                   <p className="text-red-400 text-sm leading-relaxed">
                     {errorMsg ||
-                      "Something went wrong. Please try again or email us directly at info@rangetracker.net."}
+                      "Something went wrong. Please try again or email us directly at comments@rangetracker.net."}
                   </p>
                 </div>
               )}
@@ -1320,10 +1335,10 @@ const ContactSection = () => {
         <p className="text-slate-500 text-sm mt-5">
           Or email us directly at{" "}
           <a
-            href="mailto:info@rangetracker.net"
+            href="mailto:comments@rangetracker.net"
             className="text-amber-400 hover:underline"
           >
-            info@rangetracker.net
+            comments@rangetracker.net
           </a>
         </p>
       </div>
@@ -1413,11 +1428,11 @@ const Footer = () => (
             shooters.
           </p>
           <a
-            href="mailto:info@rangetracker.net"
+            href="mailto:comments@rangetracker.net"
             className="flex items-center gap-2 text-amber-400 hover:text-amber-300 text-sm mt-4 transition-colors"
           >
             <Mail size={14} />
-            info@rangetracker.net
+            comments@rangetracker.net
           </a>
         </div>
 

@@ -1,31 +1,31 @@
-// ─── Supabase Browser-Safe Stub ───────────────────────────────────────────────
-// @supabase/supabase-js uses import.meta internally which Sandpack's bundler
-// cannot evaluate at dev-preview time. This lightweight stub hits the Supabase
-// REST API directly via fetch — identical runtime behaviour, no bundler issues.
-//
-// Anima injects __ANIMA_SUPABASE_URL__ / __ANIMA_SUPABASE_ANON_KEY__ at
-// publish/deploy time. In the Sandpack preview those tokens are NOT replaced,
-// so DB writes are silently skipped (emails still go out).
+// ─── Supabase Browser-Safe Client ────────────────────────────────────────────
+// Uses a lightweight fetch-based stub instead of @supabase/supabase-js to
+// avoid the import.meta bundler issue in Sandpack.
+// Credentials are injected at build time via vite.config.ts `define` block
+// so no import.meta syntax ever reaches the Sandpack bundler.
 
-// Anima injects these tokens at publish/deploy time.
-// In the Sandpack preview they remain as-is and DB writes are silently skipped.
-const SUPABASE_URL = "__ANIMA_SUPABASE_URL__";
-const SUPABASE_ANON_KEY = "__ANIMA_SUPABASE_ANON_KEY__";
+// Credentials are hardcoded here as string literals so Sandpack's bundler
+// can read them directly without needing Vite's define substitution.
+const SUPABASE_URL = "https://dfchziajttrastbfggii.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_MKViB4BAwBJORStBC9kaSQ_vSO5i1oK";
 
-// True when credentials are real (not an unresolved placeholder)
 const DB_CONFIGURED =
   !!SUPABASE_URL &&
-  !SUPABASE_URL.startsWith("__ANIMA_") &&
-  SUPABASE_URL.startsWith("https://");
+  SUPABASE_URL.startsWith("https://") &&
+  !SUPABASE_URL.includes("your-project-ref") &&
+  !!SUPABASE_ANON_KEY &&
+  !SUPABASE_ANON_KEY.includes("your-anon-public-key") &&
+  !SUPABASE_ANON_KEY.includes("placeholder");
 
 if (!DB_CONFIGURED) {
-  console.info(
-    "[RangeTracker] Supabase credentials not yet injected — DB writes will be skipped in the preview. Emails will still send.",
+  console.warn(
+    "[RangeTracker] Supabase credentials not set — update VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file. DB writes will be skipped.",
   );
 } else {
   console.info("[RangeTracker] Supabase connected:", SUPABASE_URL);
 }
 
+// ─── Types ────────────────────────────────────────────────────────────────────
 interface InsertResult {
   data: unknown[] | null;
   error: { message: string } | null;
@@ -39,10 +39,12 @@ interface QueryBuilder {
   then: (resolve: (result: InsertResult) => void) => Promise<void>;
 }
 
+// ─── Fetch-based query builder ────────────────────────────────────────────────
 const from = (table: string): QueryBuilder => {
   let _method: "POST" | "GET" = "GET";
   let _body: string | undefined;
   let _params: Record<string, string> = {};
+
   const _headers: Record<string, string> = {
     apikey: SUPABASE_ANON_KEY,
     Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
@@ -52,7 +54,9 @@ const from = (table: string): QueryBuilder => {
 
   const execute = async (): Promise<InsertResult> => {
     if (!DB_CONFIGURED) {
-      // Preview mode — skip silently, treat as success so the form still works
+      console.warn(
+        "[RangeTracker] DB write skipped — credentials not configured.",
+      );
       return { data: null, error: null };
     }
     try {

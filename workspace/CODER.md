@@ -11,6 +11,13 @@ Keep entries sorted in DESC order (newest first) so recent knowledge stays in pr
 </instructions>
 
 <coder>
+## 🚨 ARCHITECTURE RULES — DO NOT DEVIATE (2026-05-08)
+- **DATABASE**: ALL database work uses **Supabase** (`https://dfchziajttrastbfggii.supabase.co`). No other DB, no localStorage persistence, no mock data for anything meant to be stored.
+- **EMAIL**: ALL email delivery goes through the **rangetracker.net SMTP server** (`webhosting3007.is.cc`, port 465, SSL). Credentials are stored as Supabase edge function secrets `SMTP_USER` / `SMTP_PASS`. The sending address is `comments@rangetracker.net`. No third-party email APIs (no SendGrid, no Anima email API, no Resend, etc.).
+- **EDGE FUNCTION**: Email is sent via the Supabase edge function `send-email` using `npm:nodemailer@6.9.9` (the old `deno.land/x/smtp` library breaks on modern Deno — do NOT use it).
+
+---
+
 ## Range Tracker Landing Page – FIXED (2026-05-06)
 - **Crash fix**: `src/main.tsx` had `@animaapp/playground-react-sdk` import — stripped; now uses plain `ReactDOM.createRoot`
 - **Entry point**: `index.html` → `src/index.tsx` → `App.tsx` (single file, no routing, no DB)
