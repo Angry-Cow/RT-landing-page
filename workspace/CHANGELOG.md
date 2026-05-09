@@ -18,6 +18,11 @@ You MUST maintain this file to track your work across messages. This is NON-NEGO
 </instructions>
 
 <changelog>
+## 2026-05-08 – Add persistent architecture rules to CODER.md
+- Supabase is the ONLY database; rangetracker.net SMTP is the ONLY email delivery method
+- Edge function uses `npm:nodemailer@6.9.9` — `deno.land/x/smtp` is broken on modern Deno
+- Sending address: `comments@rangetracker.net`; SMTP host: `webhosting3007.is.cc` port 465 SSL
+
 ## 2026-05-08 – Remove all __ANIMA_DBG__ console logs from App.tsx
 - Confirmed CORS block is expected in Sandpack preview — catch block works correctly
 - Removed all 5x `__ANIMA_DBG__` console.log/warn/error calls from `sendEmail()`

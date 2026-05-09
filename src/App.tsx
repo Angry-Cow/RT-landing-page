@@ -287,7 +287,7 @@ const HeroSection = () => {
         </div>
 
         {/* Social proof */}
-        <p className="text-slate-500 text-sm mt-10">
+        <p className="text-white text-sm mt-10">
           Forever Free plan available · No credit card required
         </p>
       </div>
@@ -399,9 +399,9 @@ const AboutSection = () => {
             </span>
           </p>
           <p className="text-slate-300 leading-relaxed">
-            So I dug back into that bag of cats I call my memory, used skills
-            from talented people earlier in my career, and built the app I
-            always wanted. That&#39;s Range Tracker™.
+            So I dug back into that bag of cats I call my memory, used skills I
+            learned from talented people earlier in my career, and built the app
+            I always wanted. That&#39;s Range Tracker™.
           </p>
           <p className="text-amber-400 text-sm font-semibold mt-6">
             — Larry S., Creator of Range Tracker™
@@ -794,7 +794,8 @@ const TestimonialSection = () => {
           <blockquote className="text-slate-200 text-lg leading-relaxed italic mb-6">
             "I was using a notebook, but it was hard to keep track of
             everything. Range Tracker™ has changed the way I train. Now I can
-            easily see my progress and make adjustments. Highly recommended!"
+            easily see my progress and make adjustments. It will work for you
+            too!"
           </blockquote>
           <div className="flex items-center justify-center gap-3">
             <div className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center">
@@ -939,6 +940,7 @@ interface FeedbackFormData {
   name: string;
   location: string;
   email: string;
+  rating: number; // 0 = not selected
   comments: string;
 }
 
@@ -946,6 +948,7 @@ const BLANK_FORM: FeedbackFormData = {
   name: "",
   location: "",
   email: "",
+  rating: 0,
   comments: "",
 };
 
@@ -978,6 +981,11 @@ const sendEmail = async (payload: {
   return await res.json();
 };
 
+const starLabel = (n: number) =>
+  n === 0
+    ? "No rating"
+    : ["", "1 – Poor", "2 – Fair", "3 – Good", "4 – Great", "5 – Excellent"][n];
+
 const adminNotificationHtml = (f: FeedbackFormData) => `
 <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;color:#1a1a2e;padding:32px;">
   <h2 style="color:#0a1628;border-bottom:2px solid #f59e0b;padding-bottom:12px;">New Feedback Submission</h2>
@@ -985,6 +993,7 @@ const adminNotificationHtml = (f: FeedbackFormData) => `
     <tr><td style="padding:8px 12px;background:#f8f9fa;font-weight:bold;width:140px;">Name</td><td style="padding:8px 12px;border-bottom:1px solid #e9ecef;">${f.name}</td></tr>
     <tr><td style="padding:8px 12px;background:#f8f9fa;font-weight:bold;">Location</td><td style="padding:8px 12px;border-bottom:1px solid #e9ecef;">${f.location}</td></tr>
     <tr><td style="padding:8px 12px;background:#f8f9fa;font-weight:bold;">Email</td><td style="padding:8px 12px;border-bottom:1px solid #e9ecef;"><a href="mailto:${f.email}" style="color:#f59e0b;">${f.email}</a></td></tr>
+    <tr><td style="padding:8px 12px;background:#f8f9fa;font-weight:bold;">Rating</td><td style="padding:8px 12px;border-bottom:1px solid #e9ecef;">${f.rating > 0 ? "★".repeat(f.rating) + " " + starLabel(f.rating) : "Not rated"}</td></tr>
     <tr><td style="padding:8px 12px;background:#f8f9fa;font-weight:bold;vertical-align:top;">Comments</td><td style="padding:8px 12px;">${f.comments.replace(/\n/g, "<br/>")}</td></tr>
   </table>
   <p style="color:#6c757d;font-size:12px;margin-top:24px;">Submitted via rangetracker.net feedback form</p>
@@ -1006,10 +1015,53 @@ const thankYouHtml = (name: string) => `
   </div>
 </div>`;
 
+// ─── Star Rating Widget ───────────────────────────────────────────────────────
+const StarRating = ({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+}) => {
+  const [hovered, setHovered] = useState(0);
+  const display = hovered > 0 ? hovered : value;
+
+  return (
+    <div className="flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <button
+          key={n}
+          type="button"
+          onClick={() => onChange(n === value ? 0 : n)}
+          onMouseEnter={() => setHovered(n)}
+          onMouseLeave={() => setHovered(0)}
+          className="p-0.5 focus:outline-none transition-transform hover:scale-110"
+          aria-label={`Rate ${n} star${n > 1 ? "s" : ""}`}
+        >
+          <Star
+            size={26}
+            className={`transition-colors duration-150 ${
+              n <= display
+                ? "text-amber-400 fill-amber-400"
+                : "text-slate-600 fill-transparent"
+            }`}
+          />
+        </button>
+      ))}
+      {display > 0 && (
+        <span className="text-slate-400 text-xs ml-2">
+          {["", "Poor", "Fair", "Good", "Great", "Excellent"][display]}
+        </span>
+      )}
+    </div>
+  );
+};
+
 const FeedbackModal = ({ onClose }: { onClose: () => void }) => {
   const [form, setForm] = useState<FeedbackFormData>(BLANK_FORM);
   const [state, setState] = useState<FormState>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [showNoRatingPrompt, setShowNoRatingPrompt] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const successRef = useRef<HTMLDivElement>(null);
@@ -1020,6 +1072,7 @@ const FeedbackModal = ({ onClose }: { onClose: () => void }) => {
     (form.name.trim() !== "" ||
       form.location.trim() !== "" ||
       form.email.trim() !== "" ||
+      form.rating !== 0 ||
       form.comments.trim() !== "");
 
   const handleClose = () => {
@@ -1031,10 +1084,10 @@ const FeedbackModal = ({ onClose }: { onClose: () => void }) => {
     ) {
       return;
     }
-    // Reset everything so reopening the modal starts fresh
     setForm(BLANK_FORM);
     setState("idle");
     setErrorMsg("");
+    setShowNoRatingPrompt(false);
     onClose();
   };
 
@@ -1046,6 +1099,14 @@ const FeedbackModal = ({ onClose }: { onClose: () => void }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // If no rating selected, show the in-modal prompt instead of submitting
+    if (form.rating === 0 && !showNoRatingPrompt) {
+      setShowNoRatingPrompt(true);
+      return;
+    }
+
+    setShowNoRatingPrompt(false);
     setState("sending");
     setErrorMsg("");
     try {
@@ -1057,6 +1118,7 @@ const FeedbackModal = ({ onClose }: { onClose: () => void }) => {
             name: form.name,
             location: form.location,
             email: form.email,
+            rating: form.rating > 0 ? form.rating : null,
             comments: form.comments,
           },
         ]);
@@ -1249,6 +1311,52 @@ const FeedbackModal = ({ onClose }: { onClose: () => void }) => {
                   className="w-full bg-white/5 border border-white/10 focus:border-amber-500/60 rounded-xl px-4 py-3 text-white text-sm placeholder-slate-600 outline-none transition-colors"
                 />
               </label>
+
+              {/* ── Star Rating ─────────────────────────────────────────── */}
+              <div className="block">
+                <span className="text-slate-300 text-sm font-medium flex items-center gap-2 mb-2">
+                  <Star size={13} className="text-amber-400" />
+                  How do you like Range Tracker&#8482;?
+                  <span className="text-slate-500 text-xs font-normal">
+                    (optional)
+                  </span>
+                </span>
+                <StarRating
+                  value={form.rating}
+                  onChange={(v) => {
+                    setForm((prev) => ({ ...prev, rating: v }));
+                    setShowNoRatingPrompt(false);
+                  }}
+                />
+              </div>
+
+              {/* ── No-rating confirmation prompt ───────────────────────── */}
+              {showNoRatingPrompt && (
+                <div className="bg-amber-500/10 border border-amber-500/40 rounded-xl px-4 py-3">
+                  <p className="text-amber-300 text-sm font-semibold mb-1">
+                    You did not select a rating.
+                  </p>
+                  <p className="text-slate-400 text-xs mb-3">
+                    Do you still want to submit? Or enter a rating first?
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      type="submit"
+                      className="flex-1 bg-amber-500 hover:bg-amber-400 text-white text-xs font-bold py-2 px-3 rounded-full transition-colors"
+                    >
+                      Submit Anyway
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowNoRatingPrompt(false)}
+                      className="flex-1 border border-white/20 hover:border-amber-400/50 text-white text-xs font-bold py-2 px-3 rounded-full transition-colors hover:bg-white/5"
+                    >
+                      Rate First
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <label className="block">
                 <span className="text-slate-300 text-sm font-medium flex items-center gap-2 mb-1.5">
                   <MessageSquare size={13} /> Comments{" "}
