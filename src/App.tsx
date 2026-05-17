@@ -116,6 +116,14 @@ const Navbar = () => {
           >
             Get Started Free
           </a>
+          <a
+            href="https://dfchziajttrastbfggii.supabase.co/storage/v1/object/sign/TOLR_Media/Range%20Tracker%20User%20Guide%20Mobile%20Edition%20Ver_00_02_35.pdf?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yOTExMjFlOC05NjNkLTQxYjUtOGZiNS0wNzQwNzFkZTUwYzIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJUT0xSX01lZGlhL1JhbmdlIFRyYWNrZXIgVXNlciBHdWlkZSBNb2JpbGUgRWRpdGlvbiBWZXJfMDBfMDJfMzUucGRmIiwiaWF0IjoxNzc5MDUyMzQxLCJleHAiOjE5MzY3MzIzNDF9.p0QWZ7RMpCLPrOI-J7vNwj7yzaPnJCES_P2glpI0xRU"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-amber-500 hover:bg-amber-400 text-white font-semibold text-sm px-5 py-2 rounded-full transition-all duration-200 shadow-lg hover:shadow-amber-500/30"
+          >
+            Get Users Guide
+          </a>
         </div>
 
         {/* Mobile toggle */}
@@ -148,6 +156,14 @@ const Navbar = () => {
             className="block w-full bg-amber-500 hover:bg-amber-400 text-white font-semibold text-center py-3 rounded-full mt-2 transition-all"
           >
             Get Started Free
+          </a>
+          <a
+            href="https://dfchziajttrastbfggii.supabase.co/storage/v1/object/sign/TOLR_Media/Range%20Tracker%20User%20Guide%20Mobile%20Edition%20Ver_00_02_35.pdf?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yOTExMjFlOC05NjNkLTQxYjUtOGZiNS0wNzQwNzFkZTUwYzIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJUT0xSX01lZGlhL1JhbmdlIFRyYWNrZXIgVXNlciBHdWlkZSBNb2JpbGUgRWRpdGlvbiBWZXJfMDBfMDJfMzUucGRmIiwiaWF0IjoxNzc5MDUyMzQxLCJleHAiOjE5MzY3MzIzNDF9.p0QWZ7RMpCLPrOI-J7vNwj7yzaPnJCES_P2glpI0xRU"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block w-full bg-amber-500 hover:bg-amber-400 text-white font-semibold text-center py-3 rounded-full transition-all"
+          >
+            Get Users Guide
           </a>
         </div>
       )}
@@ -838,7 +854,7 @@ const FAQS = [
   },
   {
     q: "What is the Forever Free plan?",
-    a: "The Forever Free plan gives you full access to Range Tracker™ features with a limited record capacity. It&#39;s perfect for trying the app out or for shooters who train occasionally.",
+    a: 'The Forever Free plan gives you full access to Range Tracker™ features with a limited record capacity. 2 "Shooter" records, 5 record limit for each of the 9 "Setting" categories, and 20 "Range Records" per shooter. Perfect for trying the app out or for shooters who train occasionally.',
   },
   {
     q: "Can I export or download my data?",
@@ -932,7 +948,7 @@ const SUPABASE_SEND_EMAIL_URL =
 
 // The anon key is used to authenticate calls to our own edge function.
 const SUPABASE_ANON_KEY_FOR_EDGE =
-  "sb_publishable_MKViB4BAwBJORStBC9kaSQ_vSO5i1oK";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmY2h6aWFqdHRyYXN0YmZnZ2lpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMDExODAsImV4cCI6MjA5Mzc3NzE4MH0.1qKgym2B4Y3bv8Vx1lWE4oZg0nYT_m89i02n3J794cc";
 
 type FormState = "idle" | "sending" | "sent" | "error";
 
@@ -1581,7 +1597,18 @@ const Footer = () => (
           >
             Open App
           </a>
-          <p className="text-slate-600 text-xs">Forever free plan available</p>
+          <p className="text-white text-xs">Forever free plan available</p>
+          <h4 className="text-white font-semibold text-sm mt-5 mb-3 uppercase tracking-widest">
+            Download the Users Guide
+          </h4>
+          <a
+            href="https://dfchziajttrastbfggii.supabase.co/storage/v1/object/sign/TOLR_Media/Range%20Tracker%20User%20Guide%20Mobile%20Edition%20Ver_00_02_35.pdf?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8yOTExMjFlOC05NjNkLTQxYjUtOGZiNS0wNzQwNzFkZTUwYzIiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJUT0xSX01lZGlhL1JhbmdlIFRyYWNrZXIgVXNlciBHdWlkZSBNb2JpbGUgRWRpdGlvbiBWZXJfMDBfMDJfMzUucGRmIiwiaWF0IjoxNzc5MDUyMzQxLCJleHAiOjE5MzY3MzIzNDF9.p0QWZ7RMpCLPrOI-J7vNwj7yzaPnJCES_P2glpI0xRU"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block bg-amber-500 hover:bg-amber-400 text-white font-bold text-sm px-5 py-2.5 rounded-full transition-all"
+          >
+            Users Guide
+          </a>
         </div>
       </div>
 

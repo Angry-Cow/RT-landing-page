@@ -18,6 +18,23 @@ You MUST maintain this file to track your work across messages. This is NON-NEGO
 </instructions>
 
 <changelog>
+## 2026-05-11 – Fix 401: replace sb_publishable_ key with JWT anon key for edge function
+- `src/App.tsx` `SUPABASE_ANON_KEY_FOR_EDGE`: replaced `sb_publishable_MKViB4BAwBJORStBC9kaSQ_vSO5i1oK` with `eyJhbGc...` JWT anon key
+- Root cause: Supabase edge function runtime validates `Authorization: Bearer` as a proper JWT; `sb_publishable_` format is not a JWT and returns `UNAUTHORIZED_INVALID_JWT_FORMAT`
+- JWT anon key obtained from Supabase dashboard → Project Settings → API → anon/public key
+
+## 2026-05-11 – Fix 401 edge function error: replace deno smtp with nodemailer
+## 2026-05-11 – Fix 401: replace sb_publishable_ key with JWT anon key for edge function
+- `src/App.tsx` `SUPABASE_ANON_KEY_FOR_EDGE`: replaced `sb_publishable_MKViB4BAwBJORStBC9kaSQ_vSO5i1oK` with `eyJhbGc...` JWT anon key
+- Root cause: Supabase edge function runtime validates `Authorization: Bearer` as a proper JWT; `sb_publishable_` format is not a JWT and returns `UNAUTHORIZED_INVALID_JWT_FORMAT`
+- JWT anon key obtained from Supabase dashboard → Project Settings → API → anon/public key
+
+## 2026-05-11 – Fix 401 edge function error: replace deno smtp with nodemailer
+- `supabase/functions/send-email/index.ts`: replaced broken `deno.land/x/smtp@v0.7.0` import with `npm:nodemailer@6.9.9`
+- Root cause: function boot failure on modern Deno manifests as 401 JWT error — not actually a JWT issue
+- `sb_publishable_` anon key in App.tsx is correct and unchanged
+- Requires `supabase functions deploy send-email` to go live
+
 ## 2026-05-08 – Add persistent architecture rules to CODER.md
 - Supabase is the ONLY database; rangetracker.net SMTP is the ONLY email delivery method
 - Edge function uses `npm:nodemailer@6.9.9` — `deno.land/x/smtp` is broken on modern Deno

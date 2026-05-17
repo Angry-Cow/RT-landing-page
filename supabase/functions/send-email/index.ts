@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { SmtpClient } from "https://deno.land/x/smtp@v0.7.0/mod.ts";
+import nodemailer from "npm:nodemailer@6.9.9";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -48,25 +48,25 @@ serve(async (req) => {
       );
     }
 
-    const client = new SmtpClient();
-
-    await client.connectTLS({
-      hostname: smtpHost,
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
       port: smtpPort,
-      username: smtpUser,
-      password: smtpPass,
+      secure: true, // true for port 465 (SSL)
+      auth: {
+        user: smtpUser,
+        pass: smtpPass,
+      },
     });
 
-    await client.send({
+    const mailOptions: nodemailer.SendMailOptions = {
       from: from ?? smtpFrom,
-      to: to,
-      replyTo: replyTo ?? undefined,
-      subject: subject,
-      content: "Please view this email in an HTML-compatible email client.",
-      html: html,
-    });
+      to,
+      subject,
+      html,
+    };
+    if (replyTo) mailOptions.replyTo = replyTo;
 
-    await client.close();
+    await transporter.sendMail(mailOptions);
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
