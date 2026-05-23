@@ -7,7 +7,8 @@
 // Credentials are hardcoded here as string literals so Sandpack's bundler
 // can read them directly without needing Vite's define substitution.
 const SUPABASE_URL = "https://dfchziajttrastbfggii.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_MKViB4BAwBJORStBC9kaSQ_vSO5i1oK";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmY2h6aWFqdHRyYXN0YmZnZ2lpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyMDExODAsImV4cCI6MjA5Mzc3NzE4MH0.1qKgym2B4Y3bv8Vx1lWE4oZg0nYT_m89i02n3J794cc";
 
 const DB_CONFIGURED =
   !!SUPABASE_URL &&

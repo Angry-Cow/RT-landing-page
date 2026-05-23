@@ -18,6 +18,12 @@ You MUST maintain this file to track your work across messages. This is NON-NEGO
 </instructions>
 
 <changelog>
+## 2026-05-23 – Fix DB insert: use JWT anon key in supabaseClient.ts (not sb_publishable_)
+- `src/supabaseClient.ts` `SUPABASE_ANON_KEY`: replaced `sb_publishable_MKViB4BAwBJORStBC9kaSQ_vSO5i1oK` with JWT anon key
+- Root cause: Supabase REST API (`/rest/v1/`) rejects `sb_publishable_` format — requires proper JWT Bearer token
+- DB insert was 401-ing, throwing before emails were attempted, showing error state in form
+- JWT anon key matches what `SUPABASE_ANON_KEY_FOR_EDGE` in App.tsx already uses correctly
+
 ## 2026-05-11 – Fix 401: replace sb_publishable_ key with JWT anon key for edge function
 - `src/App.tsx` `SUPABASE_ANON_KEY_FOR_EDGE`: replaced `sb_publishable_MKViB4BAwBJORStBC9kaSQ_vSO5i1oK` with `eyJhbGc...` JWT anon key
 - Root cause: Supabase edge function runtime validates `Authorization: Bearer` as a proper JWT; `sb_publishable_` format is not a JWT and returns `UNAUTHORIZED_INVALID_JWT_FORMAT`
