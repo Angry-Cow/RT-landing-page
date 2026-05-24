@@ -18,6 +18,21 @@ You MUST maintain this file to track your work across messages. This is NON-NEGO
 </instructions>
 
 <changelog>
+## 2026-05-24 – Add rpc() method to Supabase fetch stub (was missing — caused "not a function" error)
+- `src/supabaseClient.ts`: added `rpc(fnName, params)` that POSTs to `/rest/v1/rpc/{fnName}` with correct apikey/Authorization headers
+- Root cause: hand-rolled stub only had `from` — no `.rpc()` method at all, so `supabase.rpc(...)` threw at runtime
+
+## 2026-05-24 – Switch feedback DB insert from .from().insert() to supabase.rpc("submit_feedback")
+## 2026-05-24 – Add rpc() method to Supabase fetch stub (was missing — caused "not a function" error)
+- `src/supabaseClient.ts`: added `rpc(fnName, params)` that POSTs to `/rest/v1/rpc/{fnName}` with correct apikey/Authorization headers
+- Root cause: hand-rolled stub only had `from` — no `.rpc()` method at all, so `supabase.rpc(...)` threw at runtime
+
+## 2026-05-24 – Switch feedback DB insert from .from().insert() to supabase.rpc("submit_feedback")
+- `src/App.tsx` `handleSubmit`: replaced direct `.insert()` with `supabase.rpc("submit_feedback", {p_name, p_location, p_email, p_comments, p_rating})`
+- RPC bypasses RLS column-mismatch and permission issues that were blocking the direct insert
+- Removed all leftover debug console.log/error calls from the prior session
+- SQL for the `submit_feedback` function provided to user (security definer, returns uuid)
+
 ## 2026-05-23 – Fix DB insert: use JWT anon key in supabaseClient.ts (not sb_publishable_)
 - `src/supabaseClient.ts` `SUPABASE_ANON_KEY`: replaced `sb_publishable_MKViB4BAwBJORStBC9kaSQ_vSO5i1oK` with JWT anon key
 - Root cause: Supabase REST API (`/rest/v1/`) rejects `sb_publishable_` format — requires proper JWT Bearer token

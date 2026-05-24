@@ -112,4 +112,44 @@ const from = (table: string): QueryBuilder => {
   return builder;
 };
 
-export const supabase = { from };
+// ─── RPC call support ─────────────────────────────────────────────────────────
+interface RpcResult {
+  data: unknown | null;
+  error: { message: string } | null;
+}
+
+const rpc = async (
+  fnName: string,
+  params?: Record<string, unknown>,
+): Promise<RpcResult> => {
+  if (!DB_CONFIGURED) {
+    console.warn(
+      "[RangeTracker] DB write skipped — credentials not configured.",
+    );
+    return { data: null, error: null };
+  }
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fnName}`, {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(params ?? {}),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      return { data: null, error: { message: `HTTP ${res.status}: ${text}` } };
+    }
+    const data = await res.json();
+    return { data, error: null };
+  } catch (err) {
+    return {
+      data: null,
+      error: { message: err instanceof Error ? err.message : String(err) },
+    };
+  }
+};
+
+export const supabase = { from, rpc };

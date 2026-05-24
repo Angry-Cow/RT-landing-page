@@ -1126,18 +1126,14 @@ const FeedbackModal = ({ onClose }: { onClose: () => void }) => {
     setState("sending");
     setErrorMsg("");
     try {
-      // 1. Insert row into Supabase
-      const { error: dbError } = await supabase
-        .from("feedback_submissions")
-        .insert([
-          {
-            name: form.name,
-            location: form.location,
-            email: form.email,
-            rating: form.rating > 0 ? form.rating : null,
-            comments: form.comments,
-          },
-        ]);
+      // 1. Insert row via RPC (bypasses RLS column mismatch on direct insert)
+      const { data, error: dbError } = await supabase.rpc("submit_feedback", {
+        p_name: form.name,
+        p_location: form.location,
+        p_email: form.email,
+        p_comments: form.comments,
+        p_rating: form.rating > 0 ? form.rating : null,
+      });
       if (dbError) throw new Error(`DB insert: ${dbError.message}`);
 
       // 2. Admin notification email → comments@rangetracker.net
